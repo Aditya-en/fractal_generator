@@ -1,3 +1,4 @@
+let pendingAction = null;
 let turnstileToken = null;
 
 function onCaptchaSuccess(token) {
@@ -129,14 +130,21 @@ function loadPreset(presetName) {
   }
 
   updateURLFromForm();
-  generateFractal();
-  showToast(`Loaded preset: ${presetName.replace('-', ' ').toUpperCase()}`);
+  openCaptchaModal(()=>{
+    actuallyGenerateFractal()
+    showToast(`Loaded preset: ${presetName.replace('-', ' ').toUpperCase()}`);
+  })
 }
 const MAX_ITER = 1000;
 const MAX_WIDTH = 1920;
 const MAX_HEIGHT = 1080;
+function generateFractal() {
+  openCaptchaModal(() => {
+    actuallyGenerateFractal();
+  });
+}
 
-async function generateFractal() {
+async function actuallyGenerateFractal() {
   console.log("turnstile token is: ", turnstileToken)
   const type = $("type").value;
   const width = +$("width").value;
@@ -387,3 +395,35 @@ window.addEventListener("DOMContentLoaded", () => {
   loadFavorites();
 });
 
+function openCaptchaModal(callback) {
+  turnstileToken = null;
+  pendingAction = callback;
+  $("captcha-modal").classList.remove("hidden");
+
+  if (typeof turnstile !== "undefined") {
+    turnstile.render(document.querySelector(".cf-turnstile"), {
+      sitekey: "0x4AAAAAABjEQjiUF2HlugpQ",
+      callback: onCaptchaSuccess,
+    });
+  }
+}
+
+function closeCaptchaModal() {
+  $("captcha-modal").classList.add("hidden");
+  pendingAction = null;
+  turnstileToken = null;
+  if (typeof turnstile !== "undefined") {
+    turnstile.reset();
+  }
+}
+
+function onCaptchaSuccess(token) {
+  turnstileToken = token;
+  $("captcha-modal").classList.add("hidden");
+
+  if (pendingAction) {
+    const action = pendingAction;
+    pendingAction = null;
+    action(); // finally execute
+  }
+}

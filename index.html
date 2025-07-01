@@ -80,11 +80,11 @@
     <div class="section">
       <h3>🎯 Actions</h3>
 
-      <div class="cf-turnstile" 
+      <!-- <div class="cf-turnstile" 
         data-sitekey="0x4AAAAAABjEQjiUF2HlugpQ"
         data-callback="onCaptchaSuccess"
         data-theme="light"
-        ></div>
+        ></div> -->
       <button onclick="generateFractal()">🎨 Generate Fractal</button>
       
       <div class="action-buttons">
@@ -108,6 +108,14 @@
     <div id="spinner" class="hidden"></div>
     <img id="output" src="" alt="Generated Fractal" />
   </div>
+  <div id="captcha-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3>🛡️ Verify to Continue</h3>
+      <div class="cf-turnstile" data-sitekey="0x4AAAAAABjEQjiUF2HlugpQ" data-callback="onCaptchaSuccess"></div>
+      <button onclick="closeCaptchaModal()">Cancel</button>
+    </div>
+  </div>
+
   <script src="script.js">
     
   </script>
