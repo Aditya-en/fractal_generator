@@ -215,6 +215,12 @@ async function generateFractal() {
   } catch (err) {
     showToast("Network error: " + err.message, 'error');
     spinner.classList.add("hidden");
+  } finally {
+    if (typeof turnstile !== "undefined") {
+      turnstile.reset();     
+    }
+    turnstileToken = null;  
+    spinner.classList.add("hidden");
   }
 }
 
