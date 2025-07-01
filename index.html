@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Fractal Generator</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #111;
+      color: #eee;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #67f;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+
+    input, select, button {
+      margin: 5px;
+      padding: 6px;
+      font-size: 1rem;
+    }
+
+    img {
+      margin-top: 20px;
+      border: 2px solid #555;
+      max-width: 100%;
+    }
+
+    .form-section {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Fractal Generator</h1>
+
+  <div class="form-section">
+    <label>Fractal Type:</label>
+    <select id="type">
+      <option value="mandelbrot">Mandelbrot</option>
+      <option value="julia">Julia</option>
+    </select>
+
+    <label>Width: <input id="width" type="number" value="400" /></label>
+    <label>Height: <input id="height" type="number" value="400" /></label>
+    <label>Max Iterations: <input id="max_iter" type="number" value="200" /></label>
+    <label>Zoom: <input id="zoom" type="number" step="0.1" value="1.0" /></label>
+    <label>Rule: <input id="rule" type="text" value="z**2 + c" /></label>
+    <label>Colormap: <input id="colormap" type="text" value="turbo" /></label>
+    <label>Gamma: <input id="gamma" type="number" step="0.1" value="0.3" /></label>
+
+    <div id="julia-params" style="display:none;">
+      <label>c_real: <input id="c_real" type="number" step="0.01" value="-0.8" /></label>
+      <label>c_imag: <input id="c_imag" type="number" step="0.01" value="0.156" /></label>
+    </div>
+
+    <button onclick="generateFractal()">Generate</button>
+  </div>
+
+  <img id="output" src="" alt="Generated Fractal" />
+
+  <script>
+    const API_BASE = "https://43wga0bnka.execute-api.ap-south-1.amazonaws.com/fractal_api";
+
+    const typeSelect = document.getElementById("type");
+    const juliaParams = document.getElementById("julia-params");
+
+    typeSelect.addEventListener("change", () => {
+      juliaParams.style.display = typeSelect.value === "julia" ? "block" : "none";
+    });
+
+    async function generateFractal() {
+      const type = document.getElementById("type").value;
+      const payload = {
+        width: +document.getElementById("width").value,
+        height: +document.getElementById("height").value,
+        max_iter: +document.getElementById("max_iter").value,
+        escape_radius: 100,
+        rule: document.getElementById("rule").value,
+        colormap: document.getElementById("colormap").value,
+        gamma: +document.getElementById("gamma").value
+      };
+
+      if (type === "mandelbrot") {
+        payload.x_center = 0.0;
+        payload.y_center = 0.0;
+        payload.zoom = +document.getElementById("zoom").value;
+      }
+
+      if (type === "julia") {
+        payload.c_real = +document.getElementById("c_real").value;
+        payload.c_imag = +document.getElementById("c_imag").value;
+        payload.x_range = [-2, 2];
+        payload.y_range = [-2, 2];
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/generate/${type}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        if (data.image) {
+          document.getElementById("output").src = data.image;
+        } else {
+          alert("Error: " + JSON.stringify(data));
+        }
+      } catch (err) {
+        alert("Fetch error: " + err.message);
+      }
+    }
+  </script>
+</body>
+</html>
+
