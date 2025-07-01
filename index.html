@@ -1,9 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Fractal Generator</title>
+  <title>Enhanced Fractal Generator</title>
   <style>
     * {
       box-sizing: border-box;
@@ -20,7 +19,7 @@
     }
 
     .sidebar {
-      width: 320px;
+      width: 340px;
       background: #1a1a1a;
       padding: 24px;
       border-right: 2px solid #333;
@@ -41,6 +40,20 @@
       50% { opacity: 0.7; }
     }
 
+    .section {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #222;
+      border-radius: 8px;
+      border: 1px solid #333;
+    }
+
+    .section h3 {
+      margin: 0 0 15px 0;
+      color: #67f;
+      font-size: 1.1rem;
+    }
+
     label {
       display: block;
       margin-top: 14px;
@@ -53,7 +66,7 @@
       padding: 8px;
       border-radius: 5px;
       border: 1px solid #444;
-      background-color: #222;
+      background-color: #2a2a2a;
       color: #eee;
       font-size: 1rem;
     }
@@ -65,12 +78,106 @@
     }
 
     button {
-      margin-top: 20px;
+      margin-top: 10px;
       background: linear-gradient(to right, #67f, #c3f, #f7a);
       border: none;
       font-weight: bold;
       color: #111;
       cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+    }
+
+    .preset-btn {
+      background: linear-gradient(45deg, #333, #555);
+      color: #eee;
+      margin: 5px 0;
+      font-size: 0.9rem;
+      padding: 6px;
+    }
+
+    .preset-btn:hover {
+      background: linear-gradient(45deg, #555, #777);
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .action-buttons button {
+      flex: 1;
+      min-width: 45%;
+      font-size: 0.85rem;
+    }
+
+    .download-btn {
+      background: linear-gradient(45deg, #28a745, #20c997);
+    }
+
+    .save-btn {
+      background: linear-gradient(45deg, #ffc107, #fd7e14);
+    }
+
+    .share-btn {
+      background: linear-gradient(45deg, #6f42c1, #e83e8c);
+    }
+
+    .favorites-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .favorite-item {
+      background: #333;
+      border-radius: 8px;
+      padding: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+
+    .favorite-item:hover {
+      border-color: #67f;
+      transform: scale(1.05);
+    }
+
+    .favorite-preview {
+      width: 100%;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 4px;
+      margin-bottom: 5px;
+    }
+
+    .favorite-name {
+      font-size: 0.8rem;
+      text-align: center;
+      color: #ccc;
+    }
+
+    .delete-favorite {
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      position: absolute;
+      top: 5px;
+      right: 5px;
+    }
+
+    .favorite-item {
+      position: relative;
     }
 
     .image-container {
@@ -79,6 +186,7 @@
       justify-content: center;
       align-items: center;
       position: relative;
+      background: #111;
     }
 
     #output {
@@ -110,6 +218,28 @@
       to { transform: rotate(360deg); }
     }
 
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #28a745;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      z-index: 1000;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+
+    .toast.error {
+      background: #dc3545;
+    }
+
     @media (max-width: 768px) {
       body {
         flex-direction: column;
@@ -118,50 +248,95 @@
         width: 100%;
         border-right: none;
         border-bottom: 2px solid #333;
+        height: 50vh;
+      }
+      .favorites-grid {
+        grid-template-columns: repeat(3, 1fr);
       }
     }
   </style>
 </head>
 <body>
   <div class="sidebar">
-    <h1>Fractal Generator</h1>
+    <h1>Enhanced Fractal Generator</h1>
 
-    <label>Fractal Type:</label>
-    <select id="type">
-      <option value="mandelbrot">Mandelbrot</option>
-      <option value="julia">Julia</option>
-    </select>
-
-    <label>Width:</label>
-    <input id="width" type="number" value="400" />
-
-    <label>Height:</label>
-    <input id="height" type="number" value="400" />
-
-    <label>Max Iterations:</label>
-    <input id="max_iter" type="number" value="200" />
-
-    <label>Zoom:</label>
-    <input id="zoom" type="number" step="0.1" value="1.0" />
-
-    <label>Rule:</label>
-    <input id="rule" type="text" value="z**2 + c" />
-
-    <label>Colormap:</label>
-    <input id="colormap" type="text" value="turbo" />
-
-    <label>Gamma:</label>
-    <input id="gamma" type="number" step="0.1" value="0.3" />
-
-    <div id="julia-params" class="hidden">
-      <label>c_real:</label>
-      <input id="c_real" type="number" step="0.01" value="-0.8" />
-
-      <label>c_imag:</label>
-      <input id="c_imag" type="number" step="0.01" value="0.156" />
+    <!-- Presets Section -->
+    <div class="section">
+      <h3>🎨 Presets</h3>
+      <button class="preset-btn" onclick="loadPreset('mandelbrot-classic')">Classic Mandelbrot</button>
+      <button class="preset-btn" onclick="loadPreset('burning-ship')">Burning Ship</button>
+      <button class="preset-btn" onclick="loadPreset('nebula-mode')">Nebula Mode</button>
+      <button class="preset-btn" onclick="loadPreset('julia-spiral')">Julia Spiral</button>
+      <button class="preset-btn" onclick="loadPreset('electric-julia')">Electric Julia</button>
     </div>
 
-    <button onclick="generateFractal()">🎨 Generate</button>
+    <!-- Parameters Section -->
+    <div class="section">
+      <h3>⚙️ Parameters</h3>
+      
+      <label>Fractal Type:</label>
+      <select id="type">
+        <option value="mandelbrot">Mandelbrot</option>
+        <option value="julia">Julia</option>
+      </select>
+
+      <label>Width:</label>
+      <input id="width" type="number" value="400" />
+
+      <label>Height:</label>
+      <input id="height" type="number" value="400" />
+
+      <label>Max Iterations:</label>
+      <input id="max_iter" type="number" value="200" />
+
+      <label>Zoom:</label>
+      <input id="zoom" type="number" step="0.1" value="1.0" />
+
+      <label>Rule:</label>
+      <input id="rule" type="text" value="z**2 + c" />
+
+      <label>Colormap:</label>
+      <select id="colormap">
+        <option value="turbo">Turbo</option>
+        <option value="plasma">Plasma</option>
+        <option value="viridis">Viridis</option>
+        <option value="hot">Hot</option>
+        <option value="cool">Cool</option>
+        <option value="rainbow">Rainbow</option>
+      </select>
+
+      <label>Gamma:</label>
+      <input id="gamma" type="number" step="0.1" value="0.3" />
+
+      <div id="julia-params" class="hidden">
+        <label>c_real:</label>
+        <input id="c_real" type="number" step="0.01" value="-0.8" />
+
+        <label>c_imag:</label>
+        <input id="c_imag" type="number" step="0.01" value="0.156" />
+      </div>
+    </div>
+
+    <!-- Actions Section -->
+    <div class="section">
+      <h3>🎯 Actions</h3>
+      <button onclick="generateFractal()">🎨 Generate Fractal</button>
+      
+      <div class="action-buttons">
+        <button class="download-btn" onclick="downloadImage()">💾 Download</button>
+        <button class="save-btn" onclick="saveToFavorites()">⭐ Save Favorite</button>
+        <button class="share-btn" onclick="shareImage()">🔗 Share URL</button>
+      </div>
+    </div>
+
+    <!-- Favorites Section -->
+    <div class="section">
+      <h3>⭐ My Favorites</h3>
+      <div id="favorites-container" class="favorites-grid">
+        <!-- Favorites will be loaded here -->
+      </div>
+      <button onclick="clearAllFavorites()" style="background: #dc3545; margin-top: 10px;">🗑️ Clear All</button>
+    </div>
   </div>
 
   <div class="image-container">
@@ -183,6 +358,64 @@
     const typeSelect = $("type");
     const juliaParams = $("julia-params");
 
+    // Presets configuration
+    const presets = {
+      'mandelbrot-classic': {
+        type: 'mandelbrot',
+        width: 800,
+        height: 800,
+        max_iter: 300,
+        zoom: 1.0,
+        rule: 'z**2 + c',
+        colormap: 'turbo',
+        gamma: 0.3
+      },
+      'burning-ship': {
+        type: 'mandelbrot',
+        width: 600,
+        height: 600,
+        max_iter: 250,
+        zoom: 0.8,
+        rule: '(abs(z.real) + 1j*abs(z.imag))**2 + c',
+        colormap: 'hot',
+        gamma: 0.5
+      },
+      'nebula-mode': {
+        type: 'julia',
+        width: 800,
+        height: 800,
+        max_iter: 400,
+        rule: 'z**3 + c',
+        colormap: 'plasma',
+        gamma: 0.2,
+        c_real: -0.4,
+        c_imag: 0.6
+      },
+      'julia-spiral': {
+        type: 'julia',
+        width: 600,
+        height: 600,
+        max_iter: 200,
+        rule: 'z**2 + c',
+        colormap: 'viridis',
+        gamma: 0.4,
+        c_real: -0.75,
+        c_imag: 0.11
+      },
+      'electric-julia': {
+        type: 'julia',
+        width: 700,
+        height: 700,
+        max_iter: 300,
+        rule: 'z**2 + c',
+        colormap: 'cool',
+        gamma: 0.6,
+        c_real: 0.285,
+        c_imag: 0.01
+      }
+    };
+
+    // Event listeners
     typeSelect.addEventListener("change", () => {
       juliaParams.classList.toggle("hidden", typeSelect.value !== "julia");
     });
@@ -218,6 +451,28 @@
       }
     }
 
+    function loadPreset(presetName) {
+      const preset = presets[presetName];
+      if (!preset) return;
+
+      Object.keys(preset).forEach(key => {
+        const el = $(key);
+        if (el) {
+          el.value = preset[key];
+        }
+      });
+
+      if (preset.type === "julia") {
+        juliaParams.classList.remove("hidden");
+      } else {
+        juliaParams.classList.add("hidden");
+      }
+
+      updateURLFromForm();
+      generateFractal();
+      showToast(`Loaded preset: ${presetName.replace('-', ' ').toUpperCase()}`);
+    }
+
     async function generateFractal() {
       const type = $("type").value;
       const payload = {
@@ -243,7 +498,7 @@
         payload.y_range = [-2, 2];
       }
 
-      // Blur and show spinner
+      // Show loading state
       output.style.opacity = 0.3;
       output.style.filter = "blur(6px)";
       spinner.classList.remove("hidden");
@@ -263,21 +518,182 @@
             spinner.classList.add("hidden");
           };
           output.src = data.image;
+          
+          // Store current image data for download
+          window.currentFractalData = {
+            imageUrl: data.image,
+            params: payload,
+            type: type,
+            timestamp: Date.now()
+          };
+          
         } else {
-          alert("Error: " + JSON.stringify(data));
+          showToast("Error generating fractal: " + JSON.stringify(data), 'error');
           spinner.classList.add("hidden");
         }
       } catch (err) {
-        alert("Fetch error: " + err.message);
+        showToast("Network error: " + err.message, 'error');
         spinner.classList.add("hidden");
       }
     }
 
+    function downloadImage() {
+      if (!window.currentFractalData) {
+        showToast("No fractal to download. Generate one first!", 'error');
+        return;
+      }
+
+      const link = document.createElement('a');
+      link.href = window.currentFractalData.imageUrl;
+      link.download = `fractal-${window.currentFractalData.type}-${Date.now()}.png`;
+      link.click();
+      
+      showToast("Download started!");
+    }
+
+    function saveToFavorites() {
+      if (!window.currentFractalData) {
+        showToast("No fractal to save. Generate one first!", 'error');
+        return;
+      }
+
+      const name = prompt("Enter a name for this fractal:", `${window.currentFractalData.type}-${Date.now()}`);
+      if (!name) return;
+
+      const favorites = getFavorites();
+      const favoriteData = {
+        id: Date.now(),
+        name: name,
+        imageUrl: window.currentFractalData.imageUrl,
+        params: getCurrentParams(),
+        timestamp: Date.now()
+      };
+
+      favorites.push(favoriteData);
+      
+      // Keep only last 20 favorites to avoid storage issues
+      if (favorites.length > 20) {
+        favorites.splice(0, favorites.length - 20);
+      }
+      
+      saveFavorites(favorites);
+      loadFavorites();
+      showToast(`Saved "${name}" to favorites!`);
+    }
+
+    function shareImage() {
+      const url = window.location.href;
+      navigator.clipboard.writeText(url).then(() => {
+        showToast("URL copied to clipboard!");
+      }).catch(() => {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = url;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showToast("URL copied to clipboard!");
+      });
+    }
+
+    function getCurrentParams() {
+      const params = {};
+      controls.forEach(id => {
+        const el = $(id);
+        if (el && !el.closest('.hidden')) {
+          params[id] = el.value;
+        }
+      });
+      return params;
+    }
+
+    function getFavorites() {
+      try {
+        return JSON.parse(localStorage.getItem('fractalFavorites') || '[]');
+      } catch {
+        return [];
+      }
+    }
+
+    function saveFavorites(favorites) {
+      localStorage.setItem('fractalFavorites', JSON.stringify(favorites));
+    }
+
+    function loadFavorites() {
+      const favorites = getFavorites();
+      const container = $('favorites-container');
+      
+      if (favorites.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #888; font-size: 0.9rem;">No favorites saved yet</p>';
+        return;
+      }
+
+      container.innerHTML = favorites.map(fav => `
+        <div class="favorite-item" onclick="loadFavorite(${fav.id})">
+          <button class="delete-favorite" onclick="event.stopPropagation(); deleteFavorite(${fav.id})">×</button>
+          <img src="${fav.imageUrl}" alt="${fav.name}" class="favorite-preview" />
+          <div class="favorite-name">${fav.name}</div>
+        </div>
+      `).join('');
+    }
+
+    function loadFavorite(id) {
+      const favorites = getFavorites();
+      const favorite = favorites.find(f => f.id === id);
+      if (!favorite) return;
+
+      Object.keys(favorite.params).forEach(key => {
+        const el = $(key);
+        if (el) {
+          el.value = favorite.params[key];
+        }
+      });
+
+      if (favorite.params.type === "julia") {
+        juliaParams.classList.remove("hidden");
+      } else {
+        juliaParams.classList.add("hidden");
+      }
+
+      updateURLFromForm();
+      generateFractal();
+      showToast(`Loaded favorite: ${favorite.name}`);
+    }
+
+    function deleteFavorite(id) {
+      const favorites = getFavorites();
+      const filtered = favorites.filter(f => f.id !== id);
+      saveFavorites(filtered);
+      loadFavorites();
+      showToast("Favorite deleted");
+    }
+
+    function clearAllFavorites() {
+      if (confirm("Are you sure you want to delete all favorites? This cannot be undone.")) {
+        saveFavorites([]);
+        loadFavorites();
+        showToast("All favorites cleared");
+      }
+    }
+
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        toast.remove();
+      }, 3000);
+    }
+
+    // Initialize app
     window.addEventListener("DOMContentLoaded", () => {
       loadFormFromURL();
+      loadFavorites();
       generateFractal();
     });
   </script>
 </body>
 </html>
-
