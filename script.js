@@ -1,5 +1,18 @@
 let pendingAction = null;
 let turnstileToken = null;
+function onCaptchaSuccess(token) {
+  console.log("CAPTCHA success", token);
+  turnstileToken = token;
+
+  const modal = $("captcha-modal");
+  if (modal) modal.classList.add("hidden");
+
+  if (pendingAction) {
+    const action = pendingAction;
+    pendingAction = null;
+    action(); // finally execute the real action
+  }
+}
 
 
 const API_BASE = "https://fractal-proxy.adityasahani443.workers.dev";
@@ -418,16 +431,5 @@ function closeCaptchaModal() {
   turnstileToken = null;
   if (typeof turnstile !== "undefined") {
     turnstile.reset();
-  }
-}
-
-function onCaptchaSuccess(token) {
-  turnstileToken = token;
-  $("captcha-modal").classList.add("hidden");
-
-  if (pendingAction) {
-    const action = pendingAction;
-    pendingAction = null;
-    action(); // finally execute
   }
 }
