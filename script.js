@@ -1,10 +1,6 @@
 let pendingAction = null;
 let turnstileToken = null;
 
-function onCaptchaSuccess(token) {
-  console.log("captch success", token)
-  turnstileToken = token;
-}
 
 const API_BASE = "https://fractal-proxy.adityasahani443.workers.dev";
 
@@ -207,6 +203,7 @@ async function actuallyGenerateFractal() {
     if (data.detail === "CAPTCHA failed") {
       showToast("Captcha verification failed");
       console.log("resetting token to null")
+      spinner.classList.add("hidden");
       if (typeof turnstile !== "undefined") turnstile.reset();
       turnstileToken = null;
       return
@@ -227,7 +224,10 @@ async function actuallyGenerateFractal() {
         type: type,
         timestamp: Date.now()
       };
-      
+
+      turnstileToken = null;
+      if (typeof turnstile !== "undefined") turnstile.reset();
+
     } else {
       showToast("Error generating fractal: " + JSON.stringify(data), 'error');
       spinner.classList.add("hidden");
@@ -400,13 +400,17 @@ function openCaptchaModal(callback) {
   pendingAction = callback;
   $("captcha-modal").classList.remove("hidden");
 
+  const widgetContainer = document.querySelector(".cf-turnstile");
+  widgetContainer.innerHTML = "";
+
   if (typeof turnstile !== "undefined") {
-    turnstile.render(document.querySelector(".cf-turnstile"), {
+    turnstile.render(widgetContainer, {
       sitekey: "0x4AAAAAABjEQjiUF2HlugpQ",
       callback: onCaptchaSuccess,
     });
   }
 }
+
 
 function closeCaptchaModal() {
   $("captcha-modal").classList.add("hidden");
