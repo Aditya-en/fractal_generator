@@ -257,6 +257,10 @@ button:hover {
   display: flex; align-items: center; justify-content: center;
   z-index: 1000;
 }
+h2 {
+  color: black;
+  text-align: center;
+}
 
 .modal.hidden { display: none; }
 
