@@ -1,3 +1,9 @@
+let turnstileToken = null;
+
+function onCaptchaSuccess(token) {
+  turnstileToken = token;
+}
+
 const API_BASE = "https://fractal-proxy.adityasahani443.workers.dev";
 
 const controls = [
@@ -143,9 +149,9 @@ async function generateFractal() {
     showToast(`Max resolution is ${MAX_WIDTH}x${MAX_HEIGHT}`, 'error');
     return;
   }
-  const turnstileResponse = document.querySelector('textarea[name="cf-turnstile-response"]')?.value;
-  if (!turnstileResponse) {
+  if (!turnstileToken) {
     showToast("Please complete the CAPTCHA", 'error');
+    if (typeof turnstile !== "undefined") turnstile.reset();
     return;
   }
 
@@ -157,7 +163,7 @@ async function generateFractal() {
     rule: $("rule").value,
     colormap: $("colormap").value,
     gamma: +$("gamma").value,
-    turnstile_token: turnstileResponse
+    turnstile_token: turnstileToken
   };
 
   if (type === "mandelbrot") {
@@ -367,6 +373,5 @@ function showToast(message, type = 'success') {
 window.addEventListener("DOMContentLoaded", () => {
   loadFormFromURL();
   loadFavorites();
-  generateFractal();
 });
 
