@@ -1,105 +1,252 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>Fractal Generator</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: sans-serif;
-      background-color: #111;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #0d0d0d;
       color: #eee;
-      text-align: center;
-      padding: 20px;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: 320px;
+      background: #1a1a1a;
+      padding: 24px;
+      border-right: 2px solid #333;
+      overflow-y: auto;
     }
 
     h1 {
-      color: #67f;
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      background: linear-gradient(to right, #67f, #c3f, #f7a);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
     }
 
     label {
       display: block;
-      margin-top: 10px;
+      margin-top: 14px;
+      font-size: 0.95rem;
     }
 
     input, select, button {
-      margin: 5px;
-      padding: 6px;
+      width: 100%;
+      margin-top: 4px;
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #444;
+      background-color: #222;
+      color: #eee;
       font-size: 1rem;
     }
 
-    img {
-      margin-top: 20px;
-      border: 2px solid #555;
-      max-width: 100%;
+    input:focus, select:focus {
+      outline: none;
+      border-color: #67f;
+      background-color: #1e1e1e;
     }
 
-    .form-section {
-      margin-bottom: 20px;
+    button {
+      margin-top: 20px;
+      background: linear-gradient(to right, #67f, #c3f, #f7a);
+      border: none;
+      font-weight: bold;
+      color: #111;
+      cursor: pointer;
+    }
+
+    .image-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    #output {
+      max-width: 100%;
+      max-height: 100%;
+      border: 2px solid #444;
+      border-radius: 8px;
+      box-shadow: 0 0 12px #000;
+      transition: opacity 0.5s ease, filter 0.5s ease;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Spinner */
+    #spinner {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      border: 6px solid #555;
+      border-top: 6px solid #f7a;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      z-index: 5;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 2px solid #333;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Fractal Generator</h1>
+  <div class="sidebar">
+    <h1>Fractal Generator</h1>
 
-  <div class="form-section">
     <label>Fractal Type:</label>
     <select id="type">
       <option value="mandelbrot">Mandelbrot</option>
       <option value="julia">Julia</option>
     </select>
 
-    <label>Width: <input id="width" type="number" value="400" /></label>
-    <label>Height: <input id="height" type="number" value="400" /></label>
-    <label>Max Iterations: <input id="max_iter" type="number" value="200" /></label>
-    <label>Zoom: <input id="zoom" type="number" step="0.1" value="1.0" /></label>
-    <label>Rule: <input id="rule" type="text" value="z**2 + c" /></label>
-    <label>Colormap: <input id="colormap" type="text" value="turbo" /></label>
-    <label>Gamma: <input id="gamma" type="number" step="0.1" value="0.3" /></label>
+    <label>Width:</label>
+    <input id="width" type="number" value="400" />
 
-    <div id="julia-params" style="display:none;">
-      <label>c_real: <input id="c_real" type="number" step="0.01" value="-0.8" /></label>
-      <label>c_imag: <input id="c_imag" type="number" step="0.01" value="0.156" /></label>
+    <label>Height:</label>
+    <input id="height" type="number" value="400" />
+
+    <label>Max Iterations:</label>
+    <input id="max_iter" type="number" value="200" />
+
+    <label>Zoom:</label>
+    <input id="zoom" type="number" step="0.1" value="1.0" />
+
+    <label>Rule:</label>
+    <input id="rule" type="text" value="z**2 + c" />
+
+    <label>Colormap:</label>
+    <input id="colormap" type="text" value="turbo" />
+
+    <label>Gamma:</label>
+    <input id="gamma" type="number" step="0.1" value="0.3" />
+
+    <div id="julia-params" class="hidden">
+      <label>c_real:</label>
+      <input id="c_real" type="number" step="0.01" value="-0.8" />
+
+      <label>c_imag:</label>
+      <input id="c_imag" type="number" step="0.01" value="0.156" />
     </div>
 
-    <button onclick="generateFractal()">Generate</button>
+    <button onclick="generateFractal()">🎨 Generate</button>
   </div>
 
-  <img id="output" src="" alt="Generated Fractal" />
+  <div class="image-container">
+    <div id="spinner" class="hidden"></div>
+    <img id="output" src="" alt="Generated Fractal" />
+  </div>
 
   <script>
     const API_BASE = "https://fractal-proxy.adityasahani443.workers.dev";
 
-    const typeSelect = document.getElementById("type");
-    const juliaParams = document.getElementById("julia-params");
+    const controls = [
+      "type", "width", "height", "max_iter", "zoom", "rule",
+      "colormap", "gamma", "c_real", "c_imag"
+    ];
+
+    const $ = id => document.getElementById(id);
+    const spinner = $("spinner");
+    const output = $("output");
+    const typeSelect = $("type");
+    const juliaParams = $("julia-params");
 
     typeSelect.addEventListener("change", () => {
-      juliaParams.style.display = typeSelect.value === "julia" ? "block" : "none";
+      juliaParams.classList.toggle("hidden", typeSelect.value !== "julia");
     });
 
+    controls.forEach(id => {
+      const el = $(id);
+      if (el) {
+        el.addEventListener("input", updateURLFromForm);
+      }
+    });
+
+    function updateURLFromForm() {
+      const params = new URLSearchParams();
+      controls.forEach(id => {
+        const el = $(id);
+        if (el && !el.closest('.hidden')) {
+          params.set(id, el.value);
+        }
+      });
+      history.replaceState(null, "", "?" + params.toString());
+    }
+
+    function loadFormFromURL() {
+      const params = new URLSearchParams(location.search);
+      controls.forEach(id => {
+        const el = $(id);
+        if (el && params.has(id)) {
+          el.value = params.get(id);
+        }
+      });
+      if ($("type").value === "julia") {
+        juliaParams.classList.remove("hidden");
+      }
+    }
+
     async function generateFractal() {
-      const type = document.getElementById("type").value;
+      const type = $("type").value;
       const payload = {
-        width: +document.getElementById("width").value,
-        height: +document.getElementById("height").value,
-        max_iter: +document.getElementById("max_iter").value,
+        width: +$("width").value,
+        height: +$("height").value,
+        max_iter: +$("max_iter").value,
         escape_radius: 100,
-        rule: document.getElementById("rule").value,
-        colormap: document.getElementById("colormap").value,
-        gamma: +document.getElementById("gamma").value
+        rule: $("rule").value,
+        colormap: $("colormap").value,
+        gamma: +$("gamma").value
       };
 
       if (type === "mandelbrot") {
         payload.x_center = 0.0;
         payload.y_center = 0.0;
-        payload.zoom = +document.getElementById("zoom").value;
+        payload.zoom = +$("zoom").value;
       }
 
       if (type === "julia") {
-        payload.c_real = +document.getElementById("c_real").value;
-        payload.c_imag = +document.getElementById("c_imag").value;
+        payload.c_real = +$("c_real").value;
+        payload.c_imag = +$("c_imag").value;
         payload.x_range = [-2, 2];
         payload.y_range = [-2, 2];
       }
+
+      // Blur and show spinner
+      output.style.opacity = 0.3;
+      output.style.filter = "blur(6px)";
+      spinner.classList.remove("hidden");
 
       try {
         const response = await fetch(`${API_BASE}/generate/${type}`, {
@@ -110,14 +257,26 @@
 
         const data = await response.json();
         if (data.image) {
-          document.getElementById("output").src = data.image;
+          output.onload = () => {
+            output.style.opacity = 1;
+            output.style.filter = "blur(0)";
+            spinner.classList.add("hidden");
+          };
+          output.src = data.image;
         } else {
           alert("Error: " + JSON.stringify(data));
+          spinner.classList.add("hidden");
         }
       } catch (err) {
         alert("Fetch error: " + err.message);
+        spinner.classList.add("hidden");
       }
     }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      loadFormFromURL();
+      generateFractal();
+    });
   </script>
 </body>
 </html>
