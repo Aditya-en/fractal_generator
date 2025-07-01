@@ -192,6 +192,14 @@ async function generateFractal() {
     });
 
     const data = await response.json();
+
+    if (data.detail === "CAPTCHA failed") {
+      showToast("Captcha verification failed");
+      if (typeof turnstile !== "undefined") turnstile.reset();
+      turnstileToken = null;
+      return
+    }
+
     if (data.image) {
       output.onload = () => {
         output.style.opacity = 1;
@@ -214,12 +222,6 @@ async function generateFractal() {
     }
   } catch (err) {
     showToast("Network error: " + err.message, 'error');
-    spinner.classList.add("hidden");
-  } finally {
-    if (typeof turnstile !== "undefined") {
-      turnstile.reset();     
-    }
-    turnstileToken = null;  
     spinner.classList.add("hidden");
   }
 }
