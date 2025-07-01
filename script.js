@@ -143,6 +143,11 @@ async function generateFractal() {
     showToast(`Max resolution is ${MAX_WIDTH}x${MAX_HEIGHT}`, 'error');
     return;
   }
+  const turnstileResponse = document.querySelector('textarea[name="cf-turnstile-response"]')?.value;
+  if (!turnstileResponse) {
+    showToast("Please complete the CAPTCHA", 'error');
+    return;
+  }
 
   const payload = {
     width,
@@ -151,7 +156,8 @@ async function generateFractal() {
     escape_radius: 100,
     rule: $("rule").value,
     colormap: $("colormap").value,
-    gamma: +$("gamma").value
+    gamma: +$("gamma").value,
+    turnstile_token: turnstileResponse
   };
 
   if (type === "mandelbrot") {
