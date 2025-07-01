@@ -125,13 +125,29 @@ function loadPreset(presetName) {
   generateFractal();
   showToast(`Loaded preset: ${presetName.replace('-', ' ').toUpperCase()}`);
 }
+const MAX_ITER = 1000;
+const MAX_WIDTH = 1920;
+const MAX_HEIGHT = 1080;
 
 async function generateFractal() {
   const type = $("type").value;
+  const width = +$("width").value;
+  const height = +$("height").value;
+  const maxIter = +$("max_iter").value;
+
+  if (maxIter > MAX_ITER) {
+    showToast(`Max iterations allowed is ${MAX_ITER}`, 'error');
+    return;
+  }
+  if (width > MAX_WIDTH || height > MAX_HEIGHT) {
+    showToast(`Max resolution is ${MAX_WIDTH}x${MAX_HEIGHT}`, 'error');
+    return;
+  }
+
   const payload = {
-    width: +$("width").value,
-    height: +$("height").value,
-    max_iter: +$("max_iter").value,
+    width,
+    height,
+    max_iter: maxIter,
     escape_radius: 100,
     rule: $("rule").value,
     colormap: $("colormap").value,
