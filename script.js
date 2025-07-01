@@ -1,6 +1,7 @@
 let turnstileToken = null;
 
 function onCaptchaSuccess(token) {
+  console.log("captch success", token)
   turnstileToken = token;
 }
 
@@ -136,6 +137,7 @@ const MAX_WIDTH = 1920;
 const MAX_HEIGHT = 1080;
 
 async function generateFractal() {
+  console.log("turnstile token is: ", turnstileToken)
   const type = $("type").value;
   const width = +$("width").value;
   const height = +$("height").value;
@@ -190,11 +192,13 @@ async function generateFractal() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
+    console.log("sending request with payload", payload);
 
     const data = await response.json();
 
     if (data.detail === "CAPTCHA failed") {
       showToast("Captcha verification failed");
+      console.log("resetting token to null")
       if (typeof turnstile !== "undefined") turnstile.reset();
       turnstileToken = null;
       return
