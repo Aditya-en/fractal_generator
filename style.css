@@ -395,6 +395,41 @@ body {
   transform: scale(1.1);
 }
 
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 25px;
+  border-radius: 8px;
+  color: white;
+  font-weight: 500;
+  z-index: 2000;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transition: opacity 0.4s ease, bottom 0.4s ease;
+  animation: slideIn 0.5s forwards;
+}
+
+.toast.success {
+  background: linear-gradient(135deg, #28a745, #20c997);
+}
+
+.toast.error {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+}
+
+@keyframes slideIn {
+  from {
+    bottom: -50px;
+    opacity: 0;
+  }
+  to {
+    bottom: 20px;
+    opacity: 1;
+  }
+}
+
 @media (max-width: 768px) {
   body {
     height: auto;
