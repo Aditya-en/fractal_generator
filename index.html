@@ -47,8 +47,12 @@
     <!-- Main Content -->
     <div class="main-content">
       <div class="image-container">
+          <div id="welcome-message">
+            <h2>Welcome to the Fractal Generator</h2>
+            <p>Choose a preset or adjust the parameters and click "Generate Fractal" to start.</p>
+          </div>
         <div id="spinner" class="spinner hidden"></div>
-        <img id="output" src="" alt="Generated Fractal" />
+        <img id="output" src="" alt="Generated Fractal" class="hidden" />
       </div>
       <button class="generate-btn" onclick="generateFractal()">
         🎨 Generate Fractal

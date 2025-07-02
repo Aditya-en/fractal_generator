@@ -323,6 +323,34 @@ body {
   box-shadow: 0 4px 15px rgba(0,0,0,0.3);
 }
 
+/* Add these styles for the welcome message */
+#welcome-message {
+  text-align: center;
+  color: #888;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+#welcome-message h2 {
+  font-size: 1.5rem;
+  color: #ddd;
+  margin-bottom: 10px;
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+#welcome-message p {
+  font-size: 1rem;
+  max-width: 400px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
 /* The preview image itself */
 .favorite-preview {
   width: 100%; /* Make the image fill the container's width */
