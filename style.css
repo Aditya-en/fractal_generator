@@ -304,6 +304,69 @@ body {
   margin-top: 15px;
 }
 
+/* --- Add these new styles to your style.css file --- */
+
+/* Container for each favorite item */
+.favorite-item {
+  position: relative; /* Crucial for positioning the delete button */
+  border: 1px solid #444;
+  border-radius: 8px;
+  overflow: hidden; /* Clips the image to the rounded corners */
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #2a2a2a;
+}
+
+.favorite-item:hover {
+  border-color: #667eea;
+  transform: translateY(-3px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+/* The preview image itself */
+.favorite-preview {
+  width: 100%; /* Make the image fill the container's width */
+  height: 120px; /* Give all thumbnails a fixed, uniform height */
+  object-fit: cover; /* This is the magic part! It scales the image to fill the space without distorting it. */
+  display: block; /* Removes any extra space below the image */
+}
+
+/* The name of the favorite */
+.favorite-name {
+  padding: 8px;
+  font-size: 0.85rem;
+  text-align: center;
+  color: #ccc;
+  /* Prevent long names from breaking the layout */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The little 'x' button to delete a favorite */
+.delete-favorite {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  z-index: 2; /* Ensure it's on top of the image */
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  font-size: 16px;
+  line-height: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.delete-favorite:hover {
+  background: #dc3545; /* Red on hover */
+  transform: scale(1.1);
+}
+
 @media (max-width: 768px) {
   body {
     height: auto;
