@@ -3,7 +3,6 @@ let turnstileToken = null;
 let isFirstGeneration = true;
 
 function onCaptchaSuccess(token) {
-  console.log("CAPTCHA success", token);
   turnstileToken = token;
 
   const modal = document.getElementById('captcha-modal');
@@ -157,7 +156,6 @@ function generateFractal() {
 }
 
 async function actuallyGenerateFractal() {
-  console.log("turnstile token is: ", turnstileToken)
   const type = $("type").value;
   const width = +$("width").value;
   const height = +$("height").value;
@@ -216,13 +214,11 @@ async function actuallyGenerateFractal() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
-    console.log("sending request with payload", payload);
 
     const data = await response.json();
 
     if (data.detail === "CAPTCHA failed") {
       showToast("Captcha verification failed");
-      console.log("resetting token to null")
       document.getElementById('spinner').classList.add('hidden');
       if (isFirstGeneration) {
         welcomeMessage.classList.remove('hidden');
@@ -239,12 +235,17 @@ async function actuallyGenerateFractal() {
       if (isFirstGeneration) {
         isFirstGeneration = false;
       }
+      showToast("Fractal generated successfully!!")
       output.onload = () => {
         output.style.opacity = 1;
         output.style.filter = "blur(0)";
         document.getElementById('spinner').classList.add('hidden');
         output.classList.remove('hidden');
       };
+      if (window.innerWidth <= 768) {
+        const mainContent = document.querySelector('.main-content');
+        mainContent.scrollIntoView({ behavior: 'smooth' });
+      }
       output.src = data.image;
       
       // Store current image data for download
