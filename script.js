@@ -1,5 +1,7 @@
 let pendingAction = null;
 let turnstileToken = null;
+let isFirstGeneration = true;
+
 function onCaptchaSuccess(token) {
   console.log("CAPTCHA success", token);
   turnstileToken = token;
@@ -27,6 +29,7 @@ const spinner = document.getElementById("spinner")
 const output = document.getElementById("output")
 const typeSelect = document.getElementById("type")
 const juliaParams = document.getElementById('julia-params');
+const welcomeMessage = document.getElementById('welcome-message');
 
 // Presets configuration
 const presets = {
@@ -173,6 +176,14 @@ async function actuallyGenerateFractal() {
     if (typeof turnstile !== "undefined") turnstile.reset();
     return;
   }
+  if (isFirstGeneration) {
+    welcomeMessage.classList.add('hidden');
+    output.classList.add('hidden');
+  } else {
+    output.style.opacity = 0.3;
+    output.style.filter = "blur(6px)";
+  }
+  spinner.classList.remove('hidden');
 
   const payload = {
     width,
@@ -198,12 +209,6 @@ async function actuallyGenerateFractal() {
     payload.y_range = [-2, 2];
   }
 
-  // Show loading state
-  output.style.opacity = 0.3;
-  output.style.filter = "blur(6px)";
-  // spinner.classList.remove("hidden");
-  document.getElementById('spinner').classList.remove('hidden');
-
 
   try {
     const response = await fetch(`${API_BASE}/generate/${type}`, {
@@ -219,16 +224,26 @@ async function actuallyGenerateFractal() {
       showToast("Captcha verification failed");
       console.log("resetting token to null")
       document.getElementById('spinner').classList.add('hidden');
+      if (isFirstGeneration) {
+        welcomeMessage.classList.remove('hidden');
+      } else {
+        output.style.opacity = 1;
+        output.style.filter = "blur(0)";
+      }
       if (typeof turnstile !== "undefined") turnstile.reset();
       turnstileToken = null;
       return
     }
 
     if (data.image) {
+      if (isFirstGeneration) {
+        isFirstGeneration = false;
+      }
       output.onload = () => {
         output.style.opacity = 1;
         output.style.filter = "blur(0)";
         document.getElementById('spinner').classList.add('hidden');
+        output.classList.remove('hidden');
       };
       output.src = data.image;
       
@@ -246,10 +261,22 @@ async function actuallyGenerateFractal() {
     } else {
       showToast("Error generating fractal: " + JSON.stringify(data), 'error');
       document.getElementById('spinner').classList.add('hidden');
+      if (isFirstGeneration) {
+        welcomeMessage.classList.remove('hidden');
+      } else {
+        output.style.opacity = 1;
+        output.style.filter = "blur(0)";
+      }
     }
   } catch (err) {
     showToast("Network error: " + err.message, 'error');
     document.getElementById('spinner').classList.add('hidden');
+    if (isFirstGeneration) {
+      welcomeMessage.classList.remove('hidden');
+    } else {
+      output.style.opacity = 1;
+      output.style.filter = "blur(0)";
+    }
   }
 }
 
