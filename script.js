@@ -4,7 +4,7 @@ function onCaptchaSuccess(token) {
   console.log("CAPTCHA success", token);
   turnstileToken = token;
 
-  const modal = $("captcha-modal");
+  const modal = document.getElementById('captcha-modal');
   if (modal) modal.classList.add("hidden");
 
   if (pendingAction) {
@@ -23,10 +23,10 @@ const controls = [
 ];
 
 const $ = id => document.getElementById(id);
-const spinner = $("spinner");
-const output = $("output");
-const typeSelect = $("type");
-const juliaParams = $("julia-params");
+const spinner = document.getElementById("spinner")
+const output = document.getElementById("output")
+const typeSelect = document.getElementById("type")
+const juliaParams = document.getElementById('julia-params');
 
 // Presets configuration
 const presets = {
@@ -85,10 +85,10 @@ const presets = {
   }
 };
 
-// Event listeners
-typeSelect.addEventListener("change", () => {
-  juliaParams.classList.toggle("hidden", typeSelect.value !== "julia");
-});
+// // Event listeners
+// typeSelect.addEventListener("change", () => {
+//   juliaParams.classList.toggle("hidden", typeSelect.value !== "julia");
+// });
 
 controls.forEach(id => {
   const el = $(id);
@@ -201,7 +201,9 @@ async function actuallyGenerateFractal() {
   // Show loading state
   output.style.opacity = 0.3;
   output.style.filter = "blur(6px)";
-  spinner.classList.remove("hidden");
+  // spinner.classList.remove("hidden");
+  document.getElementById('spinner').classList.remove('hidden');
+
 
   try {
     const response = await fetch(`${API_BASE}/generate/${type}`, {
@@ -216,7 +218,7 @@ async function actuallyGenerateFractal() {
     if (data.detail === "CAPTCHA failed") {
       showToast("Captcha verification failed");
       console.log("resetting token to null")
-      spinner.classList.add("hidden");
+      document.getElementById('spinner').classList.add('hidden');
       if (typeof turnstile !== "undefined") turnstile.reset();
       turnstileToken = null;
       return
@@ -226,7 +228,7 @@ async function actuallyGenerateFractal() {
       output.onload = () => {
         output.style.opacity = 1;
         output.style.filter = "blur(0)";
-        spinner.classList.add("hidden");
+        document.getElementById('spinner').classList.add('hidden');
       };
       output.src = data.image;
       
@@ -243,11 +245,11 @@ async function actuallyGenerateFractal() {
 
     } else {
       showToast("Error generating fractal: " + JSON.stringify(data), 'error');
-      spinner.classList.add("hidden");
+      document.getElementById('spinner').classList.add('hidden');
     }
   } catch (err) {
     showToast("Network error: " + err.message, 'error');
-    spinner.classList.add("hidden");
+    document.getElementById('spinner').classList.add('hidden');
   }
 }
 
@@ -399,7 +401,7 @@ function showToast(message, type = 'success') {
 
   setTimeout(() => {
     toast.remove();
-  }, 3000);
+  }, 4000);
 }
 
 // Initialize app
@@ -407,11 +409,14 @@ window.addEventListener("DOMContentLoaded", () => {
   loadFormFromURL();
   loadFavorites();
 });
+document.addEventListener('DOMContentLoaded', function() {
+  toggleJuliaParams();
+});
 
 function openCaptchaModal(callback) {
   turnstileToken = null;
   pendingAction = callback;
-  $("captcha-modal").classList.remove("hidden");
+  document.getElementById('captcha-modal').classList.remove("hidden");
 
   const widgetContainer = document.querySelector(".cf-turnstile");
   widgetContainer.innerHTML = "";
@@ -426,10 +431,21 @@ function openCaptchaModal(callback) {
 
 
 function closeCaptchaModal() {
-  $("captcha-modal").classList.add("hidden");
+  document.getElementById('captcha-modal').classList.add('hidden');
   pendingAction = null;
   turnstileToken = null;
   if (typeof turnstile !== "undefined") {
     turnstile.reset();
   }
 }
+function toggleJuliaParams() {
+  const type = document.getElementById('type').value;
+  const juliaParams = document.getElementById('julia-params');
+  
+  if (type === 'julia') {
+    juliaParams.classList.remove('hidden');
+  } else {
+    juliaParams.classList.add('hidden');
+  }
+}
+

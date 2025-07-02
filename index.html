@@ -3,17 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <title>Fractal Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <link rel="icon" href="favicon.png" type="image/png">
   <link rel="stylesheet" href="style.css">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
-  <div class="sidebar">
-    <h1>Fractal Generator</h1>
-    <div class="sidebar-content">
-      <div class="column" id="left-column">
-        <div class="section">
-          <h3>🎨 Presets</h3>
+  <div class="container">
+    <div class="left-sidebar">
+      <div class="logo">
+        <h1>Fractal Generator</h1>
+        <p>Create stunning fractals</p>
+      </div>
+
+      <div class="section">
+        <h3>🎨 Presets</h3>
+        <div class="preset-grid">
           <button class="preset-btn" onclick="loadPreset('mandelbrot-classic')">Classic Mandelbrot</button>
           <button class="preset-btn" onclick="loadPreset('burning-ship')">Burning Ship</button>
           <button class="preset-btn" onclick="loadPreset('nebula-mode')">Nebula Mode</button>
@@ -21,87 +27,128 @@
           <button class="preset-btn" onclick="loadPreset('electric-julia')">Electric Julia</button>
         </div>
       </div>
-      <div class="column" id="right-column">
-        <div class="section">
-          <h3>⚙️ Parameters</h3>
+
+      <div class="section">
+        <h3>🎯 Actions</h3>
+        <div class="action-grid">
+          <button class="action-btn download" onclick="downloadImage()">
+            💾 Download
+          </button>
+          <button class="action-btn save" onclick="saveToFavorites()">
+            ⭐ Save Favorite
+          </button>
+          <button class="action-btn share" onclick="shareImage()">
+            🔗 Share URL
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="image-container">
+        <div id="spinner" class="spinner hidden"></div>
+        <img id="output" src="" alt="Generated Fractal" />
+      </div>
+      <button class="generate-btn" onclick="generateFractal()">
+        🎨 Generate Fractal
+      </button>
+    </div>
+
+    <!-- Right Sidebar: Configuration -->
+    <div class="right-sidebar">
+      <div class="config-section">
+        <h3>⚙️ Parameters</h3>
+        
+        <div class="form-group">
           <label>Fractal Type:</label>
-          <select id="type">
+          <select id="type" onchange="toggleJuliaParams()">
             <option value="mandelbrot">Mandelbrot</option>
             <option value="julia">Julia</option>
           </select>
+        </div>
 
-          <label>Width:</label>
-          <input id="width" type="number" value="400" />
+        <div class="form-group">
+          <label>Dimensions:</label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div>
+              <input id="width" type="number" value="400" placeholder="Width" />
+            </div>
+            <div>
+              <input id="height" type="number" value="400" placeholder="Height" />
+            </div>
+          </div>
+        </div>
 
-          <label>Height:</label>
-          <input id="height" type="number" value="400" />
-
+        <div class="form-group">
           <label>Max Iterations:</label>
           <input id="max_iter" type="number" value="200" />
+        </div>
 
+        <div class="form-group">
           <label>Zoom:</label>
           <input id="zoom" type="number" step="0.1" value="1.0" />
+        </div>
 
-          <label>Rule:</label>
-          <input id="rule" type="text" value="z**2 + c" />
+        <div class="form-group">
+          <label>Rule (Mathematical Expression):</label>
+          <textarea id="rule" class="rule-input" placeholder="Enter your fractal rule here...">z**2 + c</textarea>
+        </div>
 
+        <div class="form-group">
           <label>Colormap:</label>
           <select id="colormap">
             <option value="turbo">Turbo</option>
-            <option value="twilight">twilight</option>
+            <option value="twilight">Twilight</option>
             <option value="plasma">Plasma</option>
             <option value="viridis">Viridis</option>
             <option value="hot">Hot</option>
             <option value="cool">Cool</option>
             <option value="rainbow">Rainbow</option>
             <option value="magma">Magma</option>
-            <option value="twilight_shifted">twilight_shifted</option>
+            <option value="twilight_shifted">Twilight Shifted</option>
             <option value="inferno">Inferno</option>
             <option value="cubehelix">Cubehelix</option>
             <option value="cividis">Cividis</option>
           </select>
+        </div>
 
+        <div class="form-group">
           <label>Gamma:</label>
           <input id="gamma" type="number" step="0.1" value="0.3" />
-
-          <div id="julia-params" class="hidden">
-            <label>c_real:</label>
-            <input id="c_real" type="number" step="0.01" value="-0.8" />
-
-            <label>c_imag:</label>
-            <input id="c_imag" type="number" step="0.01" value="0.156" />
-          </div>
         </div>
 
-        <div class="section">
-          <h3>🎯 Actions</h3>
-          <div class="action-buttons">
-            <button class="download-btn" onclick="downloadImage()">💾 Download</button>
-            <button class="save-btn" onclick="saveToFavorites()">⭐ Save Favorite</button>
-            <button class="share-btn" onclick="shareImage()">🔗 Share URL</button>
+        <div id="julia-params" class="hidden">
+          <div class="form-group">
+            <label>Julia Parameters:</label>
+            <div class="julia-params">
+              <div>
+                <input id="c_real" type="number" step="0.01" value="-0.8" placeholder="c_real" />
+              </div>
+              <div>
+                <input id="c_imag" type="number" step="0.01" value="0.156" placeholder="c_imag" />
+              </div>
+            </div>
           </div>
-        </div>
-
-        <div class="section">
-          <h3>⭐ My Favorites</h3>
-          <div id="favorites-container" class="favorites-grid"></div>
-          <button onclick="clearAllFavorites()" style="background: #dc3545; margin-top: 10px;">🗑️ Clear All</button>
         </div>
       </div>
-    </div>
-    <div class="generate-wrapper">
-      <button onclick="generateFractal()">🎨 Generate Fractal</button>
+
+      <div class="config-section">
+        <h3>⭐ My Favorites</h3>
+        <div id="favorites-container" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px;">
+          <!-- Favorites will be populated here -->
+        </div>
+        <button onclick="clearAllFavorites()" style="background: linear-gradient(135deg, #dc3545, #c82333); border: none; color: white; padding: 8px 16px; border-radius: 6px; cursor: pointer; width: 100%;">
+          🗑️ Clear All Favorites
+        </button>
+      </div>
     </div>
   </div>
 
-  <div class="image-container">
-    <div id="spinner" class="hidden"></div>
-    <img id="output" src="" alt="Generated Fractal" />
-  </div>
-
+  <!-- Modal -->
   <div id="captcha-modal" class="modal hidden">
     <div class="modal-content">
-      <h2>CAPTCHA verification Required</h2>
+      <h2>CAPTCHA Verification Required</h2>
       <div class="cf-turnstile"></div>
       <button onclick="closeCaptchaModal()">Cancel</button>
     </div>
